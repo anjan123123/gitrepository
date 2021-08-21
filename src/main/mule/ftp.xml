@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="300dbf85-dc1b-4cde-865f-42fcdd7514ec" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="348849b6-27b8-4a08-8ab1-96d70bdf504c" >
+		<ftp:connection host="localhost" username="anjanftp" password="anjan@143" workingDir="empdir"/>
+	</ftp:config>
+	<flow name="ftpFlow" doc:id="63b560bd-ccad-4ae6-9be6-e68770081141" >
+		<scheduler doc:name="Scheduler" doc:id="fb52db4e-cfa4-4958-b6c0-42017ca29dda" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="a956d8cb-bad6-4b9b-88ba-62a4ff53b4ea" message="flowstart"/>
+		<ftp:read doc:id="b6570854-8250-4297-8fba-b9bac033f662" config-ref="FTP_Config" path="employee.json"/>
+		<ee:transform doc:name="Transform Message" doc:id="5d4cc5d9-902c-42c3-954b-d919288b2c46" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="033efef9-ca9d-47df-9a9d-0fd07a454d5d" message="read #[payload]"/>
+	</flow>
+</mule>
